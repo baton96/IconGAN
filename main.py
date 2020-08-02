@@ -59,3 +59,17 @@ def grayscaleImgs():
         gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
         _, blackAndWhite = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
         cv2.imwrite(f'grayscale/{filename}', blackAndWhite)
+
+def padImgs():
+    if not os.path.exists('padded'):
+        os.makedirs('padded')
+    for filename in os.listdir('img'):
+        original = cv2.imread(f'img/{filename}')
+        h_original, w_original, _ = original.shape
+        h_desired, w_desired, = 626, 626
+        white = (255, 255, 255)
+        padded = np.full((h_desired, w_desired, 3), white, dtype=np.uint8)
+        x = (w_desired - w_original) // 2
+        y = (h_desired - h_original) // 2
+        padded[y:y + h_original, x:x + w_original] = original
+        cv2.imwrite(f'padded/{filename}', padded)
