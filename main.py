@@ -27,17 +27,23 @@ def fetchMetadata():
     metadata.close()
 
 def fetchImgs():
+    if not os.path.exists('img'):
+        os.makedirs('img')
     metadata = pd.read_csv('metadata.csv')
     for url in metadata['URL']:
         with open(f'img/{url}', 'wb') as f:
             f.write(get(f'https://image.freepik.com/free-icon/{url}').content)
 
 def flipImgs():
+    if not os.path.exists('flipped'):
+        os.makedirs('flipped')
     for filename in os.listdir('img'):
         original = cv2.imread(f'img/{filename}')
         cv2.imwrite(f'flipped/flipped{filename}', cv2.flip(original, 1))
 
 def binarizeImgs():
+    if not os.path.exists('binarized'):
+        os.makedirs('binarized')
     for filename in os.listdir('img'):
         original = cv2.imread(f'img/{filename}')
         gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
@@ -46,6 +52,8 @@ def binarizeImgs():
         np.save(f'binarized/{filename}', blackAndWhite)
 
 def grayscaleImgs():
+    if not os.path.exists('grayscale'):
+        os.makedirs('grayscale')
     for filename in os.listdir('img'):
         original = cv2.imread(f'img/{filename}')
         gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
