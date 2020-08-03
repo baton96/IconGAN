@@ -1,7 +1,4 @@
 .idea
 __pycache__
 img
-grayscale
-flipped
-binarized
-padded
+processed

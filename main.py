@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from requests import get
 import pandas as pd
 import numpy as np
+import imagehash
 import cv2
 import os
 
@@ -41,29 +42,11 @@ def flipImgs():
         original = cv2.imread(f'img/{filename}')
         cv2.imwrite(f'flipped/flipped{filename}', cv2.flip(original, 1))
 
-def binarizeImgs():
-    if not os.path.exists('binarized'):
-        os.makedirs('binarized')
+def processImgs():
+    if not os.path.exists('processed'):
+        os.makedirs('processed')
     for filename in os.listdir('img'):
-        original = cv2.imread(f'img/{filename}')
-        gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
-        _, blackAndWhite = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-        blackAndWhite.dtype = bool
-        np.save(f'binarized/{filename}', blackAndWhite)
-
-def grayscaleImgs():
-    if not os.path.exists('grayscale'):
-        os.makedirs('grayscale')
-    for filename in os.listdir('img'):
-        original = cv2.imread(f'img/{filename}')
-        gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
-        _, blackAndWhite = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-        cv2.imwrite(f'grayscale/{filename}', blackAndWhite)
-
-def padImgs():
-    if not os.path.exists('padded'):
-        os.makedirs('padded')
-    for filename in os.listdir('img'):
+        # Padding
         original = cv2.imread(f'img/{filename}')
         h_original, w_original, _ = original.shape
         h_desired, w_desired, = 626, 626
@@ -72,4 +55,14 @@ def padImgs():
         x = (w_desired - w_original) // 2
         y = (h_desired - h_original) // 2
         padded[y:y + h_original, x:x + w_original] = original
-        cv2.imwrite(f'padded/{filename}', padded)
+
+        # Grayscaling
+        gray = cv2.cvtColor(padded, cv2.COLOR_BGR2GRAY)
+
+        # Most of pixels are either 0 or 255 so
+        # normalize them from [0, 255] to [-1, 1]
+        gray = gray / 255.0
+        gray -= 0.5
+        gray *= 2
+        gray.dtype = np.float16
+        np.save(f'processed/{filename}', gray)
