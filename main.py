@@ -150,3 +150,12 @@ def processImgsFlaticon():
         gray *= 2
         gray = gray.astype('float32')
         np.save(f'flaticon/processed/{filename}', gray)
+
+def plotDownloads():
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    #metadata = pd.read_csv('flaticon/metadataFlaticon.csv', usecols=["Downloads"], dtype={"Downloads": int})
+    metadata = pd.read_csv('freepik/metadataFreepik.csv', usecols=["Downloads"], dtype={"Downloads": int})
+    downloads = np.log1p(metadata['Downloads'])
+    sns.distplot(downloads)
+    plt.show()
