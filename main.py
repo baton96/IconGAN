@@ -57,25 +57,22 @@ def processImgsFreepik():
     if not os.path.exists('freepik/processed'):
         os.makedirs('freepik/processed')
     for filename in os.listdir('freepik/img'):
-        original = cv2.imread(f'freepik/img/{filename}').astype('float32')
-
-        # Grayscaling
-        gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
+        original = cv2.imread(f'freepik/img/{filename}', cv2.IMREAD_GRAYSCALE).astype('float32')
 
         # Most of pixels are either 0 or 255 so
         # normalize them from [0, 255] to [-1, 1]
-        gray = (gray - 127.5) / 127.5
+        original = (original - 127.5) / 127.5
 
         # Padding
-        h_original, w_original = gray.shape
+        h_original, w_original = original.shape
         h_desired, w_desired = 626, 626 # Most common shape
         if (h_original, w_original) == (h_desired, w_desired):
-            imgs += [gray]
+            imgs += [original]
             continue
         padded = np.full((h_desired, w_desired), 1, dtype=np.float32)
         x = (w_desired - w_original) // 2
         y = (h_desired - h_original) // 2
-        padded[y:y + h_original, x:x + w_original] = gray
+        padded[y:y + h_original, x:x + w_original] = original
 
         imgs += [padded]
 
