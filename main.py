@@ -53,42 +53,33 @@ def flipImgs():
 
 
 def processImgsFreepik():
-    #imgs = []
+    imgs = []
     if not os.path.exists('freepik/processed'):
         os.makedirs('freepik/processed')
     for filename in os.listdir('freepik/img'):
-        original = cv2.imread(f'freepik/img/{filename}')
-
-        # Padding
-        h_original, w_original, _ = original.shape
-        h_desired, w_desired, = 626, 626
-        if (h_original, w_original) == (h_desired, w_desired):
-            cv2.imwrite(f'freepik/processed/{filename}', original)
-            continue
-
-        white = (255, 255, 255)
-        padded = np.full((h_desired, w_desired, 3), white, dtype=np.uint8)
-        x = (w_desired - w_original) // 2
-        y = (h_desired - h_original) // 2
-        padded[y:y + h_original, x:x + w_original] = original
+        original = cv2.imread(f'freepik/img/{filename}').astype('float32')
 
         # Grayscaling
-        gray = cv2.cvtColor(padded, cv2.COLOR_BGR2GRAY)
-
-        # Quality should be 0 or 100?
-        cv2.imwrite(f'freepik/processed/{filename}', gray, [int(cv2.IMWRITE_JPEG_QUALITY ), 100])
+        gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
 
         # Most of pixels are either 0 or 255 so
         # normalize them from [0, 255] to [-1, 1]
-        gray = gray / 255.0
-        gray -= 0.5
-        gray *= 2
-        gray = gray.astype('float32')
-        np.save(f'freepik/processed/{filename}', gray)
-        # imgs += [gray]
+        gray = (gray - 127.5) / 127.5
 
-    # np.savez_compressed('freepik/processedFile', *imgs)
+        # Padding
+        h_original, w_original = gray.shape
+        h_desired, w_desired = 626, 626 # Most common shape
+        if (h_original, w_original) == (h_desired, w_desired):
+            imgs += [gray]
+            continue
+        padded = np.full((h_desired, w_desired), 1, dtype=np.float32)
+        x = (w_desired - w_original) // 2
+        y = (h_desired - h_original) // 2
+        padded[y:y + h_original, x:x + w_original] = gray
 
+        imgs += [padded]
+
+    np.savez_compressed('freepik/freepik', *imgs)
 
 def fetchMetadataFlaticon():
     if not os.path.exists('flaticon'):
