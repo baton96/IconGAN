@@ -121,7 +121,7 @@ def fetchImgsFlaticon():
 
 def processImgsFlaticon():
     imgs = []
-    if not os.path.exists('flaticon/processed2'):
+    if not os.path.exists('flaticon/processed'):
         os.makedirs('flaticon/processed2')
     for filename in os.listdir('flaticon/img'):
         original = cv2.imread(f'flaticon/img/{filename}', cv2.IMREAD_UNCHANGED).astype('float32')
@@ -132,10 +132,10 @@ def processImgsFlaticon():
         # Most of pixels are either 0 or 255 so
         # normalize them from [0, 255] to [-1, 1]
         gray = (gray - 127.5) / 127.5
-        imgs += [gray]
-    np.savez_compressed('flaticon/flaticon', *imgs)
 
-processImgsFlaticon()
+        imgs += [gray]
+
+    np.savez_compressed('flaticon/flaticon', *imgs)
 
 def plotDownloads():
     import matplotlib.pyplot as plt
