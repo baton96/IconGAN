@@ -135,10 +135,17 @@ def processImgsFlaticon():
     np.savez_compressed('flaticon/flaticon', *imgs)
 
 def plotDownloads():
+    from sklearn.mixture import GaussianMixture
     import matplotlib.pyplot as plt
     import seaborn as sns
+
     #metadata = pd.read_csv('flaticon/metadataFlaticon.csv', usecols=["Downloads"], dtype={"Downloads": int})
-    metadata = pd.read_csv('freepik/metadataFreepik.csv', usecols=["Downloads"], dtype={"Downloads": int})
-    downloads = np.log1p(metadata['Downloads'])
-    sns.distplot(downloads)
+    metadata = pd.read_csv('freepik/metadataFreepik.csv', usecols=['Downloads'], dtype={'Downloads': int})
+    downloads = np.log1p(metadata['Downloads']).to_numpy().reshape(-1, 1)
+
+    gmm = GaussianMixture(n_components=2)
+    y = gmm.fit_predict(downloads)
+
+    sns.distplot(downloads[y == 0])
+    sns.distplot(downloads[y == 1])
     plt.show()
