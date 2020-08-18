@@ -120,27 +120,22 @@ def fetchImgsFlaticon():
             f.write(get(f'https://image.flaticon.com/icons/png/512/{url}').content)
 
 def processImgsFlaticon():
-    if not os.path.exists('flaticon/processed'):
-        os.makedirs('flaticon/processed')
+    imgs = []
+    if not os.path.exists('flaticon/processed2'):
+        os.makedirs('flaticon/processed2')
     for filename in os.listdir('flaticon/img'):
-        original = cv2.imread(f'flaticon/img/{filename}', cv2.IMREAD_UNCHANGED)
+        original = cv2.imread(f'flaticon/img/{filename}', cv2.IMREAD_UNCHANGED).astype('float32')
 
-        # gray = 255 - original[:, :, 3]
-        # cv2.imwrite(f'flaticon/processed/{filename}', gray)
         # White instead of transparent background
-        mask = original[:, :, 3] == 0
-        original[mask] = [255, 255, 255, 255]
-
-        # Grayscaling
-        gray = cv2.cvtColor(original, cv2.COLOR_BGRA2GRAY)
+        gray = 255 - original[:, :, 3]
 
         # Most of pixels are either 0 or 255 so
         # normalize them from [0, 255] to [-1, 1]
-        gray = gray / 255.0
-        gray -= 0.5
-        gray *= 2
-        gray = gray.astype('float32')
-        np.save(f'flaticon/processed/{filename}', gray)
+        gray = (gray - 127.5) / 127.5
+        imgs += [gray]
+    np.savez_compressed('flaticon/flaticon', *imgs)
+
+processImgsFlaticon()
 
 def plotDownloads():
     import matplotlib.pyplot as plt
